@@ -1,8 +1,8 @@
 #!/bin/bash
-#SPDX-License-Identifier: GPL-3.0 
+#SPDX-License-Identifier: GPL-3.0
 # NAME
 #   git-draw - draws nearly the full content of a tiny git repository as a graph
-# 
+#
 # SYNOPSIS
 #   git-draw [OPTION]...
 #
@@ -27,7 +27,7 @@
 #   3) display (see imagemagick) is called to display that image.
 #
 #   As long as you run git-draw from within a git repository, it will graph
-#   the repository.   An alternate git repository can be chosen using the 
+#   the repository.   An alternate git repository can be chosen using the
 #   --git-dir and/or --work-dir flags.
 #
 #   The intention is to help learning Git's basic concepts (references, Git
@@ -52,7 +52,7 @@
 #   -g, --git-dir
 #     Git repository directory to use
 #
-#   -w, --work-dir    
+#   -w, --work-dir
 #     Top level git working directory
 #
 #   --dot-filename <filename>
@@ -109,7 +109,7 @@
 #     Set color for tag objects
 #
 #   --color-tree <color>
-#     Set color for tree objects 
+#     Set color for tree objects
 #
 #   --color-blob <color>
 #     Set color for blob objects
@@ -137,7 +137,7 @@
 #   <http://gnu.org/licenses/gpl.html>. This is free software: you are free to
 #   change and redistribute it. There is NO WARRANTY, to the extent permitted
 #   by law.
-# 
+#
 # SEE ALSO
 #   git(1)
 
@@ -314,7 +314,7 @@ abbreviate_sha1() {
 ls_all_objects() {
   # unpacked objects
   find "$GIT_DIR"/objects/ -type f |
-    perl -ne 'print "$1$2\n" if m@^.*/([a-f0-9]{2})/([a-f0-9]{38})@' 
+    perl -ne 'print "$1$2\n" if m@^.*/([a-f0-9]{2})/([a-f0-9]{38})@'
 
   # packed objects
   # note that the .idx is not always present
@@ -460,7 +460,7 @@ print_dot_references() {
           $fillcolor = "lightyellow";
         }
         # HEAD and pseudorefs
-        elsif ($currentref =~ m/^[A-Z0-9_]*HEAD$/) { 
+        elsif ($currentref =~ m/^[A-Z0-9_]*HEAD$/) {
           unless ($currentref eq "HEAD") {
             $reftype = ":pseudoref";
           }
@@ -541,26 +541,26 @@ print_dot_ref_logs() {
             $refname = "'"$refname"'";
             $dotid_reflog = "reflog_" . (($tmp = $refname) =~ s@([^a-zA-Z0-9_])@___@g,$tmp);
           }
-          
+
           if (m/^([a-f0-9]+).*@\{\d+\}: (.*?)$/) { $id_any=$1; $msg=$2; }
           elsif (m/^([a-f0-9]+)/) { $id_any=$1; $msg="<lastentry>"; }
           $id_short = substr(`git rev-parse --short='$sha1length' $id_any`,0,-1);
           print "  $dotid_reflog -> _$id_short [color=gray90]\n";
-          
+
           s/^[a-f0-9]+//;            # strip sha1; $id_short will be used instead
           s/([^a-zA-Z0-9\n])/\\$1/g; # quote for dot
           s/(\r?\n)?$/\\l/;          # \l instead \n newline, and ensure \l at
                                      # end of content
           $content = $content . $id_short . $_;
-          
+
           END {
             if ($content eq "") {
               $content = "\\<empty\\>";
             }
-            $trailing = (substr($content,-2) eq "\\l") ? "" : "\\l"; 
+            $trailing = (substr($content,-2) eq "\\l") ? "" : "\\l";
             print "  $dotid_reflog [color=gray90, fontcolor=gray, " .
               "label=\"{{reflog|logs/$refname}|$content$trailing}\"]\n";
-          }' 
+          }'
       fi
     firstiter="" # empty stringt, i.e. false
   done
@@ -593,13 +593,13 @@ print_dot_workingtree() {
     use strict;
     our %isFqNameIgnored;
     our %isRelNameIgnored;
-    
+
     sub print_dot_for_dir {
         my ($fqParentDirName, $fqParentDirNameDotId, $fqParentDirNameQuoted, $level) = @_;
         if ($level >= 2) { print "level exeeded\n"; return; }
-    
+
         my $parentDirContentQuoted = "";
-    
+
         opendir(DIR, $fqParentDirName) or die "cant open dir $fqParentDirName for reading\n";
         foreach my $relFileName (readdir(DIR)) {
             my $fqFileName = "$fqParentDirName/$relFileName";
@@ -609,22 +609,22 @@ print_dot_workingtree() {
             if (not (-f "$fqFileName" or -d "$fqFileName")) {
                 next;
             }
-    
+
             (my $fqFileNameDotId = $fqFileName) =~ s@([^a-zA-Z0-9_])@___@g;
             print "  $fqParentDirNameDotId -> $fqFileNameDotId\n";
-    
+
             (my $relFileNameQuoted = $relFileName) =~ s/([^a-zA-Z0-9\n\r])/\\$1/g;
             $parentDirContentQuoted = $parentDirContentQuoted . $relFileNameQuoted . "\\l";
-    
+
             my $sep = $fqParentDirNameQuoted ? "\\/" : "";
             my $fqFileNameQuoted = $fqParentDirNameQuoted . $sep . $relFileNameQuoted;
-    
+
             if (-f "$fqFileName") {
                 local $/ = undef;
                 open FILE, $fqFileName;
                 my $content = <FILE>;
                 close FILE;
-    
+
                 (my $contentQuoted = $content) =~ s/([^a-zA-Z0-9\n\r])/\\$1/g;
                 $contentQuoted =~ s/(\r?\n)/\\l/g;
                 if ($contentQuoted eq "") {
@@ -632,12 +632,12 @@ print_dot_workingtree() {
                 }
                 print "  $fqFileNameDotId [label=\"{{working_tree_node:file|$fqFileNameQuoted}|$contentQuoted}\"]\n";
             }
-    
+
             elsif (-d "$fqFileName") {
                 print_dot_for_dir("$fqFileName", "$fqFileNameDotId", "$fqFileNameQuoted", $level + 1)
             }
         }
-    
+
         my $fqParentDirNameQuotedDisplay =
           $fqParentDirNameQuoted eq "" ? "\\<root\\>" : $fqParentDirNameQuoted;
         if ($parentDirContentQuoted eq "") {
@@ -645,7 +645,7 @@ print_dot_workingtree() {
         }
         print "  $fqParentDirNameDotId [label=\"{{working_tree_node:dir|$fqParentDirNameQuotedDisplay}|$parentDirContentQuoted}\"]\n";
     }
-    
+
     my @ignoredFqNames = split(
         /\r?\n/,
         `git ls-files --others -i --exclude-standard --exclude "/git-draw*"`);
@@ -659,7 +659,7 @@ print_dot_workingtree() {
     ' "$GIT_WORK_TREE"
 }
 
-print_dot() { 
+print_dot() {
   echo "digraph structs {"
   echo "  node [shape=record,fontsize=11];"
   echo "  rankdir=\"$orientation\";"
